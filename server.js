@@ -1,46 +1,7 @@
 const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
-
-var todos = [];
-var seq = 0;
-function createTodo(title, order) {
-  seq ++;
-  const todo = {title, order, completed: false, id: seq};
-  todos.push(todo);
-  return todo;
-}
-
-function deleteAllTodos() {
-  todos = [];
-}
-
-function findById(id) {
-  return todos.find(x => x.id == id);
-}
-
-function updateTodo(data) {
-  const todo = findById(data.id);
-  if (data.title) {
-    todo.title = data.title;
-  }
-
-  if (data.completed) {
-    todo.completed = data.completed;
-  }
-
-  if (data.order) {
-    todo.order = data.order;
-  }
-
-  return todo;
-}
-
-function deleteTodo(id) {
-  const todo = findById(id);
-  todos = todos.filter(x => x.id != id);
-  return todo;
-};
+const TodoRepo = require('./todo-repo');
 
 function createResourceLink(req, id) {
   return `${req.protocol}://${req.get('host')}/${id}`;
@@ -72,28 +33,27 @@ app.use(corsMiddleware);
 app.use(bodyParser.json());
 
 app.get('/', (req, res, next) => {
-  req.todos = todos;
+  req.todos = TodoRepo.findAll();
   next();
 }, sendTodos);
 
 app.post('/', (req, res, next) => {
-  req.todo = createTodo(req.body.title, req.body.order);
+  req.todo = TodoRepo.create(req.body.title, req.body.order);
   next();
 }, sendTodo);
 
 app.delete('/', (req, res, next) => {
-  deleteAllTodos();
-  req.todos = todos;
+  req.todos = TodoRepo.deleteAll();
   next();
 }, sendTodos);
 
 app.get('/:id', (req, res, next) => {
-  req.todo = findById(req.params.id);
+  req.todo = TodoRepo.findById(req.params.id);
   next();
 }, sendTodo);
 
 app.patch('/:id', (req, res, next) => {
-  req.todo = updateTodo({
+  req.todo = TodoRepo.update({
     id: req.params.id,
     title: req.body.title,
     completed: req.body.completed,
@@ -103,7 +63,7 @@ app.patch('/:id', (req, res, next) => {
 }, sendTodo);
 
 app.delete('/:id', (req, res, next) => {
-  req.todo = deleteTodo(req.params.id);
+  req.todo = TodoRepo.deleteById(req.params.id);
   next();
 }, sendTodo);
 
