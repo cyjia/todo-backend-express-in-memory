@@ -1,0 +1,15 @@
+{
+  "name": "todo-backend-express-in-memory",
+  "version": "1.0.0",
+  "description": "todo backend with express and in memory store",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "todo-backend",
+    "express"
+  ],
+  "author": "cyjia",
+  "license": "MIT"
+}
