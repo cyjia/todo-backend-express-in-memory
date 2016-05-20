@@ -15,13 +15,17 @@ function deleteAllTodos() {
   todos = [];
 }
 
+function findById(id) {
+  return todos.find(x => x.id == id);
+}
+
 function createResourceLink(req, id) {
   return `${req.protocol}://${req.get('host')}/${id}`;
 }
 
 function createTodoResource(req, todo) {
-    const url = createResourceLink(req, todo.id);
-    return Object.assign({}, todo, {url});
+  const url = createResourceLink(req, todo.id);
+  return Object.assign({}, todo, {url});
 }
 
 const corsMiddleware = (req, res, next) => {
@@ -31,27 +35,46 @@ const corsMiddleware = (req, res, next) => {
   next();
 };
 
+const sendTodo = (req, res, next) => {
+  res.send(createTodoResource(req, req.todo));
+  next();
+};
+
+const sendTodos = (req, res, next) => {
+  res.send(req.todos.map(createTodoResource.bind(this, req)));
+  next();
+};
+
 app.use(corsMiddleware);
 app.use(bodyParser.json());
 
-app.get('/', (req, res) => {
-  res.send(todos.map(createTodoResource.bind(this, req)));
-});
+app.get('/', (req, res, next) => {
+  req.todos = todos;
+  next();
+}, sendTodos);
 
-app.post('/', (req, res) => {
-  const todo = createTodo(req.body.title, req.body.order);
-  res.send(createTodoResource(req, todo));
-});
+app.post('/', (req, res, next) => {
+  req.todo = createTodo(req.body.title, req.body.order);
+  next();
+}, sendTodo);
 
-app.delete('/', (req, res) => {
+app.delete('/', (req, res, next) => {
   deleteAllTodos();
-  res.send(todos);
-});
+  req.todos = todos;
+  next();
+}, sendTodos);
 
-app.get('/:id', (req, res) => {
-  const todo = todos.find(x => x.id == req.params.id);
-  res.send(createTodoResource(req, todo));
-});
+app.get('/:id', (req, res, next) => {
+  req.todo = findById(req.params.id);
+  next();
+}, sendTodo);
+
+app.patch('/:id', (req, res, next) => {
+  const todo = findById(req.params.id);
+  todo.title = req.body.title;
+  req.todo = todo;
+  next();
+}, sendTodo);
 
 const port = process.env.port || 3000;
 app.listen(port, () => {
