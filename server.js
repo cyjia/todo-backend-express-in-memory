@@ -19,6 +19,19 @@ function findById(id) {
   return todos.find(x => x.id == id);
 }
 
+function updateTodo(data) {
+  const todo = findById(data.id);
+  if (data.title) {
+    todo.title = data.title;
+  }
+
+  if (data.completed) {
+    todo.completed = data.completed;
+  }
+
+  return todo;
+}
+
 function createResourceLink(req, id) {
   return `${req.protocol}://${req.get('host')}/${id}`;
 }
@@ -70,9 +83,11 @@ app.get('/:id', (req, res, next) => {
 }, sendTodo);
 
 app.patch('/:id', (req, res, next) => {
-  const todo = findById(req.params.id);
-  todo.title = req.body.title;
-  req.todo = todo;
+  req.todo = updateTodo({
+    id: req.params.id,
+    title: req.body.title,
+    completed: req.body.completed
+  });
   next();
 }, sendTodo);
 
