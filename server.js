@@ -16,7 +16,7 @@ function deleteAllTodos() {
 }
 
 function createResourceLink(req, id) {
-  return `${req.protocol}://${req.hostname}:${req.port}/${id}`;
+  return `${req.protocol}://${req.get('host')}/${id}`;
 }
 
 function createTodoResource(req, todo) {
@@ -46,6 +46,11 @@ app.post('/', (req, res) => {
 app.delete('/', (req, res) => {
   deleteAllTodos();
   res.send(todos);
+});
+
+app.get('/:id', (req, res) => {
+  const todo = todos.find(x => x.id == req.params.id);
+  res.send(createTodoResource(req, todo));
 });
 
 const port = process.env.port || 3000;
