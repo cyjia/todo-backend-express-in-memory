@@ -4,7 +4,7 @@ const bodyParser = require('body-parser');
 
 var todos = [];
 function createTodo(title, order) {
-  const todo = {title, order};
+  const todo = {title, order, completed: false};
   todos.push(todo);
   return todo;
 }
