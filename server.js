@@ -2,8 +2,16 @@ const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
 
-const todos = [];
+var todos = [];
+function createTodo(title, order) {
+  const todo = {title, order};
+  todos.push(todo);
+  return todo;
+}
 
+function deleteAllTodos() {
+  todos = [];
+}
 const corsMiddleware = (req, res, next) => {
   res.header('Access-Control-Allow-Headers', 'Content-Type');
   res.header('Access-Control-Allow-Methods', 'GET,POST,PATCH,DELETE');
@@ -19,11 +27,13 @@ app.get('/', (req, res) => {
 });
 
 app.post('/', (req, res) => {
-  console.log(req.body);
-  res.send({
-    title: req.body.title,
-    order: req.body.order
-  });
+  const todo = createTodo(req.body.title, req.body.order);
+  res.send(todo);
+});
+
+app.delete('/', (req, res) => {
+  deleteAllTodos();
+  res.send(todos);
 });
 
 const port = process.env.port || 3000;
