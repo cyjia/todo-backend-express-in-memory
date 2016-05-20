@@ -29,8 +29,18 @@ function updateTodo(data) {
     todo.completed = data.completed;
   }
 
+  if (data.order) {
+    todo.order = data.order;
+  }
+
   return todo;
 }
+
+function deleteTodo(id) {
+  const todo = findById(id);
+  todos = todos.filter(x => x.id != id);
+  return todo;
+};
 
 function createResourceLink(req, id) {
   return `${req.protocol}://${req.get('host')}/${id}`;
@@ -86,8 +96,14 @@ app.patch('/:id', (req, res, next) => {
   req.todo = updateTodo({
     id: req.params.id,
     title: req.body.title,
-    completed: req.body.completed
+    completed: req.body.completed,
+    order: req.body.order
   });
+  next();
+}, sendTodo);
+
+app.delete('/:id', (req, res, next) => {
+  req.todo = deleteTodo(req.params.id);
   next();
 }, sendTodo);
 
