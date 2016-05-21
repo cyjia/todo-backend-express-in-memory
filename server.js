@@ -14,7 +14,10 @@ const corsMiddleware = (req, res, next) => {
 app.use(corsMiddleware);
 app.use(bodyParser.json());
 
-resourceMiddleware(app, TodoRepo);
+resourceMiddleware(app, {
+  path: '',
+  actions: TodoRepo
+});
 
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
