@@ -27,7 +27,7 @@ function update(data) {
     todo.title = data.title;
   }
 
-  if (data.completed) {
+  if (data.completed !== undefined) {
     todo.completed = data.completed;
   }
 
